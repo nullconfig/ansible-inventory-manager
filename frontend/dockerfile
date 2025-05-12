@@ -1,0 +1,41 @@
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Copy the template, configuration, and build script
+COPY ansible-inventory-template.html ./
+COPY package.json ./
+COPY config.json ./
+COPY build.js ./
+
+# Make the build script executable
+RUN chmod +x build.js
+
+# Build argument for environment (default to production)
+ARG ENVIRONMENT=production
+ENV ENVIRONMENT=${ENVIRONMENT}
+
+# Install any needed dependencies for the build process
+RUN npm install --no-package-lock --no-save fs path
+
+COPY . .
+# Run the build script to generate the final HTML
+RUN node build.js ${ENVIRONMENT} ./dist
+
+# Use Nginx to serve the static files
+FROM nginx:alpine
+
+# Copy the built files from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+
+# Default command
+CMD ["nginx", "-g", "daemon off;"]
