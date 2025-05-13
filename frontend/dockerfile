@@ -2,25 +2,25 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
-# Copy the template, configuration, and build script
-COPY ansible-inventory-template.html ./
+# Copy package.json and install dependencies first (for better caching)
 COPY package.json ./
-COPY config.json ./
-COPY build.js ./
+RUN npm install
 
-# Make the build script executable
-RUN chmod +x build.js
+# Copy the rest of the application
+COPY . .
 
 # Build argument for environment (default to production)
 ARG ENVIRONMENT=production
 ENV ENVIRONMENT=${ENVIRONMENT}
 
-# Install any needed dependencies for the build process
-RUN npm install --no-package-lock --no-save fs path
-
-COPY . .
-# Run the build script to generate the final HTML
-RUN node build.js ${ENVIRONMENT} ./dist
+# For backward compatibility - if build.js exists, use it, otherwise use webpack
+RUN if [ -f "build.js" ]; then \
+      echo "Using build.js script for building..." && \
+      node build.js ${ENVIRONMENT} ./dist; \
+    else \
+      echo "Using webpack for building..." && \
+      npm run build; \
+    fi
 
 # Use Nginx to serve the static files
 FROM nginx:alpine
