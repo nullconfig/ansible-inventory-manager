@@ -1,4 +1,4 @@
-// components/VariablesTable.js
+// src/components/VariablesTable.js
 import React, { useState, useEffect } from 'react';
 
 export const VariablesTable = ({ variables, itemId, itemType }) => {
@@ -93,10 +93,10 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
   if (!varsData || (Object.keys(varsData).length === 0 && !isEditing)) {
     return (
       <div>
-        <div className="italic text-secondary">No variables defined</div>
+        <div className="italic text-secondary dark:text-gray-400">No variables defined</div>
         <div className="mt-4">
           <button
-            className="bg-primary text-white py-2 px-4 rounded"
+            className="bg-primary text-white py-2 px-4 rounded dark:bg-primary-dark"
             onClick={() => setIsEditing(true)}>
             Add Variable
           </button>
@@ -110,42 +110,42 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
       <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th className="text-left p-2 bg-table-header border border-border">Variable</th>
-            <th className="text-left p-2 bg-table-header border border-border">Value</th>
-            {isEditing && <th className="text-left p-2 bg-table-header border border-border">Actions</th>}
+            <th className="text-left p-2 bg-table-header dark:bg-table-header-dark border border-border dark:border-border-dark dark:text-gray-200">Variable</th>
+            <th className="text-left p-2 bg-table-header dark:bg-table-header-dark border border-border dark:border-border-dark dark:text-gray-200">Value</th>
+            {isEditing && <th className="text-left p-2 bg-table-header dark:bg-table-header-dark border border-border dark:border-border-dark dark:text-gray-200">Actions</th>}
           </tr>
         </thead>
         <tbody>
           {Object.entries(varsData).map(([key, value]) => (
             <tr key={key}>
-              <td className="p-2 border border-border font-mono text-sm">
+              <td className="p-2 border border-border dark:border-border-dark font-mono text-sm dark:text-gray-300">
                 {editingKey === key ? (
                   <div className="flex items-center justify-between">
                     <span>{key}</span>
                   </div>
                 ) : key}
               </td>
-              <td className="p-2 border border-border font-mono text-sm">
+              <td className="p-2 border border-border dark:border-border-dark font-mono text-sm dark:text-gray-300">
                 {editingKey === key ? (
                   <input
                     type="text"
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
-                    className="w-full p-1.5 border border-border rounded"
+                    className="w-full p-1.5 border border-border dark:border-border-dark rounded dark:bg-gray-700 dark:text-gray-200"
                   />
                 ) : formatValue(value)}
               </td>
               {isEditing && (
-                <td className="p-2 border border-border">
+                <td className="p-2 border border-border dark:border-border-dark">
                   {editingKey === key ? (
                     <div className="flex justify-start gap-1">
                       <button
-                        className="bg-green-600 text-white py-1 px-2 rounded text-xs"
+                        className="bg-green-600 text-white py-1 px-2 rounded text-xs dark:bg-green-700"
                         onClick={() => saveEdit(key)}>
                         Save
                       </button>
                       <button
-                        className="bg-gray-500 text-white py-1 px-2 rounded text-xs"
+                        className="bg-gray-500 text-white py-1 px-2 rounded text-xs dark:bg-gray-600"
                         onClick={() => setEditingKey(null)}>
                         Cancel
                       </button>
@@ -153,7 +153,7 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
                   ) : (
                     <div className="flex justify-start gap-1">
                       <button
-                        className="bg-primary text-white py-1 px-2 rounded text-xs"
+                        className="bg-primary text-white py-1 px-2 rounded text-xs dark:bg-primary-dark"
                         onClick={() => {
                           setEditingKey(key);
                           setEditValue(formatValue(value));
@@ -161,7 +161,7 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
                         Edit
                       </button>
                       <button
-                        className="bg-red-600 text-white py-1 px-2 rounded text-xs"
+                        className="bg-red-600 text-white py-1 px-2 rounded text-xs dark:bg-red-700"
                         onClick={() => deleteVariable(key)}>
                         Delete
                       </button>
@@ -173,28 +173,28 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
           ))}
           {isEditing && (
             <tr>
-              <td className="p-2 border border-border">
+              <td className="p-2 border border-border dark:border-border-dark">
                 <input
                   type="text"
                   value={newVarName}
                   onChange={(e) => setNewVarName(e.target.value)}
                   placeholder="New variable name"
-                  className="w-full p-1.5 border border-border rounded"
+                  className="w-full p-1.5 border border-border dark:border-border-dark rounded dark:bg-gray-700 dark:text-gray-200"
                 />
               </td>
-              <td className="p-2 border border-border">
+              <td className="p-2 border border-border dark:border-border-dark">
                 <input
                   type="text"
                   value={newVarValue}
                   onChange={(e) => setNewVarValue(e.target.value)}
                   placeholder="Value"
-                  className="w-full p-1.5 border border-border rounded"
+                  className="w-full p-1.5 border border-border dark:border-border-dark rounded dark:bg-gray-700 dark:text-gray-200"
                 />
               </td>
-              <td className="p-2 border border-border">
+              <td className="p-2 border border-border dark:border-border-dark">
                 <div className="flex justify-start gap-1">
                   <button
-                    className="bg-green-600 text-white py-1 px-2 rounded text-xs"
+                    className="bg-green-600 text-white py-1 px-2 rounded text-xs dark:bg-green-700"
                     onClick={addVariable}>
                     Add
                   </button>
@@ -206,7 +206,7 @@ export const VariablesTable = ({ variables, itemId, itemType }) => {
       </table>
       <div className="mt-4">
         <button
-          className={`py-2 px-4 rounded ${isEditing ? 'bg-gray-500' : 'bg-primary'} text-white`}
+          className={`py-2 px-4 rounded ${isEditing ? 'bg-gray-500 dark:bg-gray-600' : 'bg-primary dark:bg-primary-dark'} text-white`}
           onClick={() => setIsEditing(!isEditing)}>
           {isEditing ? 'Cancel Editing' : 'Edit Variables'}
         </button>

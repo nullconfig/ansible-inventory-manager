@@ -4,46 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
+  <!-- Preload system fonts to ensure they're available -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <script>
-    // Environment configuration from build process
-    window.CONFIG = <%= config %> || {
-      API_ENDPOINT: "/api",
-      DEFAULT_EXPANDED: false,
-      ENABLE_EDIT: true,
-      ENABLE_DELETE: false,
-      ENABLE_CREATE: false,
-      DEBUG_MODE: false,
-      ICONS: {
-        FOLDER: "folder",
-        SERVER: "server",
-        CHEVRON_RIGHT: "chevron-right",
-        CHEVRON_DOWN: "chevron-down"
-      }
+    // Ensure we have a CONFIG object first
+    window.CONFIG = <%= config %> || {};
+    
+    // Explicitly ensure ENABLE_DARK_MODE is true
+    // This will override any value from config.json
+    window.CONFIG.ENABLE_DARK_MODE = true;
+    
+    // Other config defaults
+    window.CONFIG.API_ENDPOINT = window.CONFIG.API_ENDPOINT || "/api";
+    window.CONFIG.DEFAULT_EXPANDED = window.CONFIG.DEFAULT_EXPANDED !== undefined ? window.CONFIG.DEFAULT_EXPANDED : false;
+    window.CONFIG.ENABLE_EDIT = window.CONFIG.ENABLE_EDIT !== undefined ? window.CONFIG.ENABLE_EDIT : true;
+    window.CONFIG.ENABLE_DELETE = window.CONFIG.ENABLE_DELETE !== undefined ? window.CONFIG.ENABLE_DELETE : false;
+    window.CONFIG.ENABLE_CREATE = window.CONFIG.ENABLE_CREATE !== undefined ? window.CONFIG.ENABLE_CREATE : false;
+    window.CONFIG.DEBUG_MODE = window.CONFIG.DEBUG_MODE !== undefined ? window.CONFIG.DEBUG_MODE : true;
+    
+    // Ensure ICONS exists
+    window.CONFIG.ICONS = window.CONFIG.ICONS || {
+      FOLDER: "folder",
+      SERVER: "server",
+      CHEVRON_RIGHT: "chevron-right",
+      CHEVRON_DOWN: "chevron-down"
     };
-
-    // Enable debug output to help troubleshoot
-    if (window.CONFIG.DEBUG_MODE) {
-      console.log("CONFIG loaded:", window.CONFIG);
+    
+    console.log("CONFIG loaded and processed:", window.CONFIG);
+    console.log("ENABLE_DARK_MODE is set to:", window.CONFIG.ENABLE_DARK_MODE);
+    
+    // Check for dark mode preference
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && 
+        window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      console.log("Applied dark mode from system/localStorage preference");
+    } else {
+      document.documentElement.classList.remove('dark');
+      console.log("Applied light mode from system/localStorage preference");
     }
   </script>
   <style>
     :root {
-      --primary-color: <%= JSON.parse(config).PRIMARY_COLOR || '#0f766e' %>;
-      --secondary-color: <%= JSON.parse(config).SECONDARY_COLOR || '#374151' %>;
-      --bg-color: <%= JSON.parse(config).BG_COLOR || '#f0fdfa' %>;
-      --border-color: <%= JSON.parse(config).BORDER_COLOR || '#d1d5db' %>;
-      --selected-bg: <%= JSON.parse(config).SELECTED_BG || '#ccfbf1' %>;
-      --table-header-bg: <%= JSON.parse(config).TABLE_HEADER_BG || '#f3f4f6' %>;
-      --table-border: <%= JSON.parse(config).TABLE_BORDER || '#d1d5db' %>;
-      --font-family: <%= JSON.parse(config).FONT_FAMILY || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif' %>;
+      /* Light mode variables from config */
+      --primary-color: <%= typeof JSON.parse(config).PRIMARY_COLOR !== 'undefined' ? JSON.parse(config).PRIMARY_COLOR : '#0f766e' %>;
+      --secondary-color: <%= typeof JSON.parse(config).SECONDARY_COLOR !== 'undefined' ? JSON.parse(config).SECONDARY_COLOR : '#374151' %>;
+      --bg-color: <%= typeof JSON.parse(config).BG_COLOR !== 'undefined' ? JSON.parse(config).BG_COLOR : '#f0fdfa' %>;
+      --border-color: <%= typeof JSON.parse(config).BORDER_COLOR !== 'undefined' ? JSON.parse(config).BORDER_COLOR : '#d1d5db' %>;
+      --selected-bg: <%= typeof JSON.parse(config).SELECTED_BG !== 'undefined' ? JSON.parse(config).SELECTED_BG : '#ccfbf1' %>;
+      --table-header-bg: <%= typeof JSON.parse(config).TABLE_HEADER_BG !== 'undefined' ? JSON.parse(config).TABLE_HEADER_BG : '#f3f4f6' %>;
+      --table-border: <%= typeof JSON.parse(config).TABLE_BORDER !== 'undefined' ? JSON.parse(config).TABLE_BORDER : '#d1d5db' %>;
+      
+      /* Dark mode specific variables */
+      --bg-color-dark: #111827;
+      --border-color-dark: #374151;
+      --selected-bg-dark: #1f2937;
+      --table-header-bg-dark: #1f2937;
+      --table-border-dark: #4b5563;
+      
+      /* Font family */
+      --font-family: <%= typeof JSON.parse(config).FONT_FAMILY !== 'undefined' ? JSON.parse(config).FONT_FAMILY : "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" %>;
     }
     
+    /* Apply font globally */
     body {
       font-family: var(--font-family);
     }
     
     /* Custom CSS from config */
-    <%= JSON.parse(config).CUSTOM_CSS || '' %>
+    <%= typeof JSON.parse(config).CUSTOM_CSS !== 'undefined' ? JSON.parse(config).CUSTOM_CSS : '' %>
   </style>
 </head>
 <body>

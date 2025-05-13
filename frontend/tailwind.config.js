@@ -6,6 +6,7 @@ module.exports = {
     "./*.html",
     "./components/**/*.{js,jsx,ts,tsx}"
   ],
+  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       colors: {
@@ -19,19 +20,23 @@ module.exports = {
         },
         background: {
           DEFAULT: 'var(--bg-color)',
+          dark: 'var(--bg-color-dark, #111827)',
         },
         border: {
           DEFAULT: 'var(--border-color)',
+          dark: 'var(--border-color-dark, #374151)',
         },
         selected: {
           DEFAULT: 'var(--selected-bg)',
+          dark: 'var(--selected-bg-dark, #1f2937)',
         },
         'table-header': {
           DEFAULT: 'var(--table-header-bg)',
+          dark: 'var(--table-header-bg-dark, #1f2937)',
         },
       },
       fontFamily: {
-        sans: ['var(--font-family)'],
+        sans: ['var(--font-family, Inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

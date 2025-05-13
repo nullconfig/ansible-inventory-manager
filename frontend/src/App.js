@@ -5,6 +5,24 @@ import { Icon } from './components/Icon';
 
 function App() {
   console.log("App component rendering");
+  
+  // Local dark mode state and toggle for the header
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains('dark')
+  );
+  
+  // Toggle function for dark mode
+  const toggleDarkMode = () => {
+    console.log("Toggling dark mode from", isDarkMode, "to", !isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+    }
+    setIsDarkMode(!isDarkMode);
+  };
   const [inventoryData, setInventoryData] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +109,7 @@ function App() {
     return (
       <div key={item._id} className="flex flex-col">
         <div
-          className={`flex items-center p-2 cursor-pointer ${isSelected ? 'bg-selected' : ''}`}
+          className={`flex items-center p-2 cursor-pointer dark:text-gray-200 ${isSelected ? 'bg-selected dark:bg-selected-dark' : ''}`}
           style={{ paddingLeft }}
           onClick={() => setSelectedItem({...item, hostVars: hostVars})}
         >
@@ -152,21 +170,21 @@ function App() {
     const isHost = item.type === 'host';
 
     return (
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-bold mb-4">{item.name}</h2>
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h2 className="text-xl font-bold mb-4 dark:text-white">{item.name}</h2>
 
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Basic Information</h3>
+          <h3 className="text-lg font-semibold mb-2 dark:text-gray-200">Basic Information</h3>
           <div className="grid grid-cols-2 gap-2">
-            <div className="text-secondary">Type:</div>
-            <div>{isHost ? 'Host' : 'Group'}</div>
-            <div className="text-secondary">ID:</div>
-            <div>{item._id}</div>
+            <div className="text-secondary dark:text-gray-400">Type:</div>
+            <div className="dark:text-gray-300">{isHost ? 'Host' : 'Group'}</div>
+            <div className="text-secondary dark:text-gray-400">ID:</div>
+            <div className="dark:text-gray-300">{item._id}</div>
           </div>
         </div>
 
         <div className="mb-4">
-          <h3 className="text-lg font-semibold mb-2">Variables</h3>
+          <h3 className="text-lg font-semibold mb-2 dark:text-gray-200">Variables</h3>
           <VariablesTable
             variables={item.vars}
             itemId={item._id}
@@ -176,14 +194,14 @@ function App() {
 
         {!isHost && item.children && item.children.length > 0 && (
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2">Child Groups</h3>
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-200">Child Groups</h3>
             <ul className="list-disc pl-5">
               {item.children.map(childId => {
                 // Find the actual child group object
                 const childGroup = inventoryData.groups.find(g => g._id === childId);
                 return (
                   <li key={childId}
-                      className="text-primary underline cursor-pointer"
+                      className="text-primary underline cursor-pointer dark:text-primary-light"
                       onClick={() => setSelectedItem({...childGroup, hostVars: item.hostVars})}>
                     {childGroup ? childGroup.name : childId}
                   </li>
@@ -195,13 +213,13 @@ function App() {
 
         {!isHost && item.hosts && item.hosts.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-2">Hosts</h3>
+            <h3 className="text-lg font-semibold mb-2 dark:text-gray-200">Hosts</h3>
             <ul className="list-disc pl-5">
               {item.hosts.map(hostId => {
                 const hostVars = item.hostVars ? item.hostVars[hostId] : {};
                 return (
                   <li key={hostId}
-                      className="text-primary underline cursor-pointer"
+                      className="text-primary underline cursor-pointer dark:text-primary-light"
                       onClick={() => setSelectedItem({
                         _id: hostId,
                         name: hostId,
@@ -219,12 +237,12 @@ function App() {
         {/* Edit controls - only shown if enabled in config */}
         <div className={`mt-4 gap-2 ${window.CONFIG.ENABLE_EDIT ? 'flex' : 'hidden'}`}>
           <button
-            className="bg-primary text-white py-2 px-4 rounded"
+            className="bg-primary text-white py-2 px-4 rounded dark:bg-primary-dark"
             onClick={handleEdit}>
             Edit
           </button>
           <button
-            className="bg-red-600 text-white py-2 px-4 rounded"
+            className="bg-red-600 text-white py-2 px-4 rounded dark:bg-red-700"
             onClick={handleDelete}>
             Delete
           </button>
@@ -240,7 +258,7 @@ function App() {
     return (
       <div className="mb-4">
         <button
-          className="bg-primary text-white py-2 px-4 rounded"
+          className="bg-primary text-white py-2 px-4 rounded dark:bg-primary-dark"
           onClick={() => alert("Create functionality would be implemented here")}>
           + Create New
         </button>
@@ -250,7 +268,7 @@ function App() {
 
   // Loading state
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
+    return <div className="flex items-center justify-center h-screen dark:bg-gray-900 dark:text-gray-200">
       Loading inventory data...
     </div>;
   }
@@ -262,12 +280,28 @@ function App() {
 
   // Main layout
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background dark:bg-gray-900">
+      {/* This should be visible if React is rendering correctly */}
+      {console.log('App main render function - should see this in console')}
+
       {/* Left sidebar with tree view */}
-      <div className="w-1/3 border-r border-border overflow-auto p-4">
-        <h1 className="text-xl font-bold mb-4">Ansible Inventory</h1>
+      <div className="w-1/3 border-r border-border dark:border-border-dark overflow-auto p-4">
+        {/* Inventory header with dark mode toggle */}
+        <div className="flex justify-between items-center mb-4 py-2 border-b border-border dark:border-border-dark">
+          <h1 className="text-xl font-bold dark:text-white">
+            Ansible Inventory
+          </h1>
+          
+          {/* Basic toggle button that works in all browsers */}
+          <button 
+            onClick={toggleDarkMode}
+            className="py-1 px-3 text-sm bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+        </div>
         {renderCreateUI()}
-        <div className="bg-white rounded shadow">
+        <div className="bg-white dark:bg-gray-800 rounded shadow">
           {inventoryData && inventoryData.groups &&
             // Find top-level groups (no parent groups)
             inventoryData.groups
@@ -280,11 +314,11 @@ function App() {
       </div>
 
       {/* Right panel with details */}
-      <div className="w-2/3 p-4 overflow-auto">
+      <div className="w-2/3 p-4 overflow-auto dark:bg-gray-900">
         {selectedItem ? (
           renderItemDetails(selectedItem)
         ) : (
-          <div className="flex items-center justify-center h-full text-secondary">
+          <div className="flex items-center justify-center h-full text-secondary dark:text-gray-400">
             Select an item from the inventory to view details
           </div>
         )}
